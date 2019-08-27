@@ -11,4 +11,4 @@ For example, with "exp" = [-1,0,1], "num" = 3, "trials" = 500, "years" = 5, "t_s
 
 After setting the "variables" the program can be run with MPI, "mpiexec -n N python DistributionSimulator.py," where N is the number put for "cores." It can also be run without MPI, in which case the program will be run on only one core and the NoMPI version should be used.
 
-The 
+The LinearInterpolation program uses scipy.interpolate.LinearNDInterpolate to interpolate the results of the simulations from  DistributionSimulator. 
