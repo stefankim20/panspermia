@@ -9,9 +9,9 @@ import numpy as np
 #variables
 exp = [-2,-1,0,1,2]
 num = 10
-trials = 500
+trials = 100
 t_step = 10 ** -3
-years = 5
+years = 1
 cores = 2
 
 index = ['a','b','c','d','e','f','g','h','i','j']
@@ -42,9 +42,8 @@ for i in exp:
 			for z in range(cores):
 				index[z].close()
 
-
 			for z in range(cores):
-				if comm.rank == z:
+				if comm.rank == 0:
 					index[z] = open("count"+str(z)+".txt","r")
 					final[z] = index[z].read().strip('][').split(', ')
 						
@@ -52,14 +51,15 @@ for i in exp:
 				for z in range(cores):
 					for j,k in enumerate(final[z]):
 						final[z][j] = int(k)
+
 				
 				p_final = []
-				for j,k in enumerate(final):
-					for x,y in enumerate(final[j]):
-						if j == 0:
+				for z in range(cores):
+					for x,y in enumerate(final[z]):
+						if z == 0:
 							p_final.append(0)
 						p_final[x] += (y/(cores * trials * years/t_step))
-
+					
 				sum = 0
 				for i in p_final:
 					sum += i
@@ -93,7 +93,7 @@ for i in exp:
 
 
 			for z in range(cores):
-				if comm.rank == z:
+				if comm.rank == 0:
 					index[z] = open("count"+str(z)+".txt","r")
 					final[z] = index[z].read().strip('][').split(', ')
 						
@@ -103,11 +103,12 @@ for i in exp:
 						final[z][j] = int(k)
 				
 				p_final = []
-				for j,k in enumerate(final):
-					for x,y in enumerate(final[j]):
-						if j == 0:
+				for z in range(cores):
+					for x,y in enumerate(final[z]):
+						if z == 0:
 							p_final.append(0)
 						p_final[x] += (y/(cores * trials * years/t_step))
+					
 
 				sum = 0
 				for i in p_final:
