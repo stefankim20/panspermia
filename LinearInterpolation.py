@@ -3,15 +3,16 @@ import scipy
 from scipy import interpolate
 import matplotlib.pyplot as plt
 
+#range
+ran = 3
+numvals = 7
+ex,ey = np.mgrid[-ran:ran:7j,-ran:ran:7j]
+
+
 def search(x,y,z):
 	r = open("a" + str((5 * 10**x)) + "e" + str((5 * 10**y)) + "p" + str((5 * 10**z)) + ".txt","r")
 	return r.read().strip('][').split(', ')[9]
 	#kld_t[str(x) + ', ' + str(y) + ' p' + '50']
-
-ran = 3
-numvals = 7
-
-ex,ey = np.mgrid[-ran:ran:7j,-ran:ran:7j]
 
 
 #print(ex,ey)
