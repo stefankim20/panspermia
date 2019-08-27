@@ -6,62 +6,59 @@ import pyximport; pyximport.install()
 import funcs_poisson
 import numpy as np
 
-e = [-2,-1,0,1,2]
+#variables
+exp = [-2,-1,0,1,2]
 num = 10
 trials = 500
 t_step = 10 ** -3
 years = 5
+cores = 2
+
+index = ['a','b','c','d','e','f','g','h','i','j']
+final = ['fa','fb','fc','fd','fe','ff','fg','fh','fi','fj']
 
 
 if comm.rank == 0: 
 	start_time = time.time()
-#variables
-for i in e:
+
+for i in exp:
 	atau = 5 * 10**i
-	for j in e:
+	for j in exp:
 		etau = 5 * 10**j
-		for k in e:
+		for k in exp:
 			ptau = 5 * 10**k
 
 			comm.Barrier()
 			r = funcs_poisson.sim(etau,atau,ptau,num,trials,t_step,years)
 			print(r)
 			comm.Barrier()
-			f = open("count.txt","w+")
-			a = open("count2.txt","w+")
+			for z in range(cores):
+				index[z] = open("count"+str(z)+".txt","w+")
 			comm.Barrier()
-			if comm.rank == 0: 
-				f.write(str(r))
-			if comm.rank == 1: 
-				a.write(str(r))
+			for z in range(cores):
+				if comm.rank == z:
+					index[z].write(str(r))
 			comm.Barrier()
-			f.close()
-			a.close()
+			for z in range(cores):
+				index[z].close()
 
+
+			for z in range(cores):
+				if comm.rank == z:
+					index[z] = open("count"+str(z)+".txt","r")
+					final[z] = index[z].read().strip('][').split(', ')
+						
 			if comm.rank == 0:
-				r = open("count.txt","r")
-				if r.mode == 'r':
-					results = r.read()
-				q = open("count2.txt","r")
-				if q.mode == 'r':
-					results2 = q.read()
-
-				final = results.strip('][').split(', ')
-				final2 = results2.strip('][').split(', ')
-
-				for j,k in enumerate(final):
-					final[j] = int(k)
-
-				for j,k in enumerate(final2):
-					final2[j] = int(k)
-
-				for j,k in enumerate(final):
-					final[j] += final2[j]
-				print(final)
-
+				for z in range(cores):
+					for j,k in enumerate(final[z]):
+						final[z][j] = int(k)
+				
 				p_final = []
-				for i in final:
-					p_final.append(i/(2 * trials * years/t_step))
+				for j,k in enumerate(final):
+					for x,y in enumerate(final[j]):
+						if j == 0:
+							p_final.append(0)
+						p_final[x] += (y/(cores * trials * years/t_step))
 
 				sum = 0
 				for i in p_final:
@@ -69,7 +66,7 @@ for i in e:
 
 				print(sum)
 
-				print(p_final, etau, atau, trials * 2)
+				print(p_final, etau, atau, trials * cores)
 				s = open('a' + str(float(atau)) + 'e' + str(float(etau)) + 'p' + str(float(ptau)) + '.txt',"w+")
 				s.write(str(p_final))
 				s.close()
@@ -82,55 +79,49 @@ for i in e:
 			r = funcs_poisson.sim(etau,atau,10**99,num,trials,t_step,years)
 			print(r)
 			comm.Barrier()
-			f = open("count.txt","w+")
-			a = open("count2.txt","w+")
-			comm.Barrier()
-			if comm.rank == 0: 
-				f.write(str(r))
-			if comm.rank == 1: 
-				a.write(str(r))
-			comm.Barrier()
-			f.close()
-			a.close()
+			for z in range(cores):
+				index[z] = open("count"+str(z)+".txt","w+")
 
+			comm.Barrier()
+			for z in range(cores):
+				if comm.rank == z:
+					index[z].write(str(r))
+
+			comm.Barrier()
+			for z in range(cores):
+				index[z].close()
+
+
+			for z in range(cores):
+				if comm.rank == z:
+					index[z] = open("count"+str(z)+".txt","r")
+					final[z] = index[z].read().strip('][').split(', ')
+						
 			if comm.rank == 0:
-				r = open("count.txt","r")
-				if r.mode == 'r':
-					results = r.read()
-				q = open("count2.txt","r")
-				if q.mode == 'r':
-					results2 = q.read()
-
-				final = results.strip('][').split(', ')
-				final2 = results2.strip('][').split(', ')
-
-				for j,k in enumerate(final):
-					final[j] = int(k)
-
-				for j,k in enumerate(final2):
-					final2[j] = int(k)
-
-				for j,k in enumerate(final):
-					final[j] += final2[j]
-				print(final)
-
+				for z in range(cores):
+					for j,k in enumerate(final[z]):
+						final[z][j] = int(k)
+				
 				p_final = []
-				for i in final:
-					p_final.append(i/(2 * trials * years/t_step))
+				for j,k in enumerate(final):
+					for x,y in enumerate(final[j]):
+						if j == 0:
+							p_final.append(0)
+						p_final[x] += (y/(cores * trials * years/t_step))
 
 				sum = 0
 				for i in p_final:
 					sum += i
 
+
 				print(sum)
 
-				print(p_final, etau, atau, trials * 2)
+				print(p_final, etau, atau, trials * cores)
 				s = open('a' + str(float(atau)) + 'e' + str(float(etau)) + 'nopan.txt',"w+")
 				s.write(str(p_final))
 				s.close()
 
 				x = np.arange(num+1)
-
 				label = []
 				for i in range(num+1):
 					label.append(str(i))
@@ -138,7 +129,7 @@ for i in e:
 				plt.bar(x, p_final, width=0.4, color='red', align='edge')
 				plt.xticks(x, label)
 
-				#plt.savefig('a' + str(atau) + 'e' + str(etau) + 'p' + str(ptau) + '.png')
+				plt.savefig('a' + str(atau) + 'e' + str(etau) + 'p' + str(ptau) + '.png')
 
 				plt.clf()
 				p_final.clear()
@@ -148,4 +139,3 @@ for i in e:
 
 if comm.rank == 0: 
 	print("%s seconds" % (time.time() - start_time))
-
