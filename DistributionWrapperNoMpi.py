@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import funcs_poisson
 import numpy as np
 
+#variables
 e = [-3,-2,-1,0,1,2,3]
 num = 10
 trials = 1000
@@ -12,7 +13,6 @@ years = 5
 
 start_time = time.time()
 count = 0
-#variables
 for i in e:
 	atau = 5 * 10**i
 	for j in e:
@@ -23,30 +23,18 @@ for i in e:
 			r = funcs_poisson.sim(etau,atau,ptau,num,trials,t_step,years)
 			print(r)
 			f = open("count.txt","w+")
-			#a = open("count2.txt","w+")
 			f.write(str(r))
-			#a.write(str(r))
 			f.close()
-			#a.close()
 
 			r = open("count.txt","r")
 			if r.mode == 'r':
 				results = r.read()
-			#q = open("count2.txt","r")
-			#if q.mode == 'r':
-				#results2 = q.read()
 
 			final = results.strip('][').split(', ')
-			#final2 = results2.strip('][').split(', ')
 
 			for j,k in enumerate(final):
 				final[j] = int(k)
 
-			#for j,k in enumerate(final2):
-				#final2[j] = int(k)
-
-			#for j,k in enumerate(final):
-				#final[j] += final2[j]
 			print(final)
 
 			p_final = []
@@ -71,30 +59,17 @@ for i in e:
 			r = funcs_poisson.sim(etau,atau,10**99,num,trials,t_step,years)
 			print(r)
 			f = open("count.txt","w+")
-			#a = open("count2.txt","w+") 
 			f.write(str(r)) 
-			#a.write(str(r))
 			f.close()
 
 			r = open("count.txt","r")
 			if r.mode == 'r':
 				results = r.read()
-			#q = open("count2.txt","r")
-			#if q.mode == 'r':
-				#results2 = q.read()
 
 			final = results.strip('][').split(', ')
-			#final2 = results2.strip('][').split(', ')
 
 			for j,k in enumerate(final):
 				final[j] = int(k)
-
-			#for j,k in enumerate(final2):
-				#final2[j] = int(k)
-
-			#for j,k in enumerate(final):
-				#final[j] += final2[j]
-			print(final)
 
 			p_final = []
 			for i in final:
